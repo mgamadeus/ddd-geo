@@ -14,7 +14,7 @@ use DDD\Domain\Common\Entities\PoliticalEntities\Localities\Locality;
 use DDD\Domain\Common\Entities\PoliticalEntities\States\State;
 use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddress;
 use DDD\Domain\Common\Services\GeoEntities\GeoRegionsService;
-use DDD\Domain\Common\Services\PostalAddressService;
+use DDD\Domain\Common\Services\GeoEntities\PostalAddressService;
 use DDD\Domain\Base\Entities\DefaultObject;
 use DDD\Domain\Base\Entities\Interfaces\IsEmptyInterface;
 use DDD\Domain\Base\Entities\LazyLoad\LazyLoad;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DDD\Presentation\Api\Batch\Common;
 
-use DDD\Domain\Batch\Services\GoogleGeoService;
+use DDD\Domain\Batch\Services\Geo\GoogleGeoService;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
 use DDD\Presentation\Api\Batch\Base\Dtos\BatchReponseDto;

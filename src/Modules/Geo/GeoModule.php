@@ -10,21 +10,21 @@ class GeoModule extends DDDModule
 {
     public static function getSourcePath(): string
     {
-        return __DIR__;
+        return __DIR__ . '/../..';
     }
 
     public static function getPublicServiceNamespaces(): array
     {
         return [
             'DDD\\Domain\\Common\\Services\\GeoEntities\\',
-            'DDD\\Domain\\Batch\\Services\\',
+            'DDD\\Domain\\Batch\\Services\\Geo\\',
         ];
     }
 
     public static function getControllerPaths(): array
     {
         return [
-            '/api/batch' => __DIR__ . '/Presentation/Api/Batch',
+            '/api/batch' => __DIR__ . '/../../Presentation/Api/Batch',
         ];
     }
 }

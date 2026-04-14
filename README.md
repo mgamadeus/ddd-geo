@@ -44,6 +44,21 @@ Full geocoding and address management layer:
 
 All require `ARGUS_API_ENDPOINT` to be configured (see [ddd-argus](https://github.com/mgamadeus/ddd-argus)).
 
+## Service registration
+
+Add to your project's `services.yaml`:
+
+```yaml
+# DDD Module: ddd-common-geo
+DDD\Domain\Common\Services\GeoEntities\:
+    resource: '%kernel.project_dir%/vendor/mgamadeus/ddd-common-geo/src/Domain/Common/Services/GeoEntities/*'
+    public: true
+
+DDD\Domain\Batch\Services\Geo\:
+    resource: '%kernel.project_dir%/vendor/mgamadeus/ddd-common-geo/src/Domain/Batch/Services/Geo/*'
+    public: true
+```
+
 ## Batch controllers
 
 The module ships `BatchGeocodingController` providing the server-side geocoding endpoints. Import in your project's `routes.yaml`:

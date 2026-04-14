@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DDD\Domain\Batch\Services;
+namespace DDD\Domain\Batch\Services\Geo;
 
 use DDD\Infrastructure\Exceptions\ExceptionDetails;
 use DDD\Infrastructure\Exceptions\InternalErrorException;

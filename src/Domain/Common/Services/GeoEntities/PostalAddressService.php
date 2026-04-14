@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DDD\Domain\Common\Services;
+namespace DDD\Domain\Common\Services\GeoEntities;
 
 use DDD\Domain\Common\Entities\Addresses\PostalAddress;
 use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;

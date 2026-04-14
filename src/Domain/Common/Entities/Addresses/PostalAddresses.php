@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DDD\Domain\Common\Entities\Addresses;
 
-use DDD\Domain\Common\Services\PostalAddressService;
+use DDD\Domain\Common\Services\GeoEntities\PostalAddressService;
 use DDD\Domain\Base\Entities\ObjectSet;
 
 /**
