@@ -113,7 +113,7 @@ class PostalAddressService extends Service
                 $address->countryId = $country->id;
                 $address->addChildren($country);
                 if (!$langaugeCode) {
-                    $langaugeCode = $country->languageCode;
+                    $langaugeCode = $country->getDefaultLanguage()->languageCode;
                 }
             }
         }

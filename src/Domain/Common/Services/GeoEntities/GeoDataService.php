@@ -298,8 +298,8 @@ class GeoDataService extends Service
         if ($state) {
             $queryBuilder->andWhere('city.county_id = :county_id')->setParameter('county_id', $state->id);
         }
-        if (!$languageCode && $country?->languageCode) {
-            $languageCode = $country->languageCode;
+        if (!$languageCode && $country?->getDefaultLanguage()?->languageCode) {
+            $languageCode = $country?->getDefaultLanguage()?->languageCode;
         }
         if ($languageCode) {
             $queryBuilder->andWhere('city.language_code = :language')->setParameter('language', $languageCode);
@@ -318,7 +318,7 @@ class GeoDataService extends Service
             $locality->country = $country;
             $locality->countryId = $country->id;
             if (!$languageCode) {
-                $locality->languageCode = $country->languageCode;
+                $locality->languageCode = $country?->getDefaultLanguage()?->languageCode;
             }
         }
         if ($languageCode) {

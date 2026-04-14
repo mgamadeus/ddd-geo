@@ -17,11 +17,11 @@ use DDD\Domain\Base\Repo\DB\Database\DatabaseColumn;
 #[ORM\Table(name: 'GeoRegionTypes')]
 class DBGeoRegionTypeModel extends DoctrineModel
 {
-	public const MODEL_ALIAS = 'GeoRegionType';
+	public const string MODEL_ALIAS = 'GeoRegionType';
 
-	public const TABLE_NAME = 'GeoRegionTypes';
+	public const string TABLE_NAME = 'GeoRegionTypes';
 
-	public const ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionType';
+	public const string ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionType';
 
 	#[ORM\Column(type: 'integer')]
 	public ?int $geoRegionId;

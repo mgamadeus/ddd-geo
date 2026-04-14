@@ -15,11 +15,11 @@ use DDD\Domain\Base\Repo\DB\Database\DatabaseColumn;
 #[ORM\Table(name: 'GeoTypes')]
 class DBGeoTypeModel extends DoctrineModel
 {
-	public const MODEL_ALIAS = 'GeoType';
+	public const string MODEL_ALIAS = 'GeoType';
 
-	public const TABLE_NAME = 'GeoTypes';
+	public const string TABLE_NAME = 'GeoTypes';
 
-	public const ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType';
+	public const string ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType';
 
 	#[ORM\Column(type: 'string')]
 	public ?string $name;

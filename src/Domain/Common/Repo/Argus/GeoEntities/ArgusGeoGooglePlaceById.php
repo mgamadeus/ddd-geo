@@ -9,7 +9,7 @@ use DDD\Domain\Base\Repo\Argus\Traits\ArgusTrait;
 use DDD\Domain\Base\Repo\Argus\Utils\ArgusApiOperation;
 use DDD\Domain\Base\Repo\Argus\Utils\ArgusCache;
 use DDD\Domain\Common\Entities\GeoEntities\GeoGooglePlace;
-use DDD\Domain\Common\Repo\Argus\Address\ArgusPostalAddress;
+use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddress;
 use DDD\Infrastructure\Cache\Cache;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;

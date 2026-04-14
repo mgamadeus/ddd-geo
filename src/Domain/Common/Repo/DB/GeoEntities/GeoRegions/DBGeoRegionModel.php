@@ -17,11 +17,11 @@ use DDD\Domain\Common\Repo\DB\GeoEntities\GeoRegionTypes\DBGeoRegionTypeModel;
 #[ORM\Table(name: 'GeoRegions')]
 class DBGeoRegionModel extends DoctrineModel
 {
-	public const MODEL_ALIAS = 'GeoRegion';
+	public const string MODEL_ALIAS = 'GeoRegion';
 
-	public const TABLE_NAME = 'GeoRegions';
+	public const string TABLE_NAME = 'GeoRegions';
 
-	public const ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoRegions\GeoRegion';
+	public const string ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoRegions\GeoRegion';
 
 	#[DatabaseColumn(isMergableJSONColumn: true)]
 	#[ORM\Column(type: 'json')]

@@ -19,6 +19,6 @@ use DDD\Domain\Base\Repo\DB\Doctrine\DoctrineQueryBuilder;
  */
 class DBGeoType extends DBEntity
 {
-    public const BASE_ENTITY_CLASS = GeoType::class;
-    public const BASE_ORM_MODEL = DBGeoTypeModel::class;
+    public const string BASE_ENTITY_CLASS = GeoType::class;
+    public const string BASE_ORM_MODEL = DBGeoTypeModel::class;
 }
