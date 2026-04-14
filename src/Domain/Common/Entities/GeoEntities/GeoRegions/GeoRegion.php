@@ -20,7 +20,7 @@ use DDD\Domain\Base\Entities\Translatable\Translatable;
 use DDD\Domain\Base\Entities\Translatable\TranslatableTrait;
 use DDD\Domain\Base\Repo\DB\Database\DatabaseColumn;
 use DDD\Domain\Base\Repo\DB\Database\DatabaseIndex;
-use DDD\Domain\Common\Entities\GeoEntities\GeoPoint;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Infrastructure\Libs\Datafilter;
 use DDD\Infrastructure\Traits\Serializer\Attributes\HideProperty;
 
@@ -80,9 +80,9 @@ class GeoRegion extends Entity
     #[DatabaseIndex(indexType: DatabaseIndex::TYPE_UNIQUE)]
     public ?string $placeId;
 
-    /** @var GeoPoint|null Center point of this region */
+    /** @var GeocodableGeoPoint|null Center point of this region */
     #[DatabaseColumn(allowsNull: false)]
-    public ?GeoPoint $geoPoint;
+    public ?GeocodableGeoPoint $geoPoint;
 
     /** @var string|null Current language code for geocoding context (not persisted) */
     protected ?string $currentLanguageCode;

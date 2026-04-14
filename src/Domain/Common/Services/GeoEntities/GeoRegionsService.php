@@ -17,7 +17,7 @@ use DDD\Domain\Common\Services\PoliticalEntities\Entity;
 use DDD\Infrastructure\Services\AppService;
 use DDD\Domain\Base\Entities\Translatable\Translatable;
 use DDD\Domain\Base\Services\EntitiesService;
-use DDD\Domain\Common\Entities\GeoEntities\GeoPoint;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
 use ReflectionException;
@@ -107,7 +107,7 @@ class GeoRegionsService extends EntitiesService
      * @param string|null $placeId Google Place ID for this region
      * @param Country|null $country The country this region belongs to
      * @param GeoRegion|null $parentGeoRegion The parent region in the hierarchy (null for top-level)
-     * @param GeoPoint|null $geoPoint Center point of this region
+     * @param GeocodableGeoPoint|null $geoPoint Center point of this region
      * @return GeoRegion|null The found or created GeoRegion, or null on failure
      */
     public function findOrCreateGeoRegionAndUpdateLocalizedName(
@@ -118,7 +118,7 @@ class GeoRegionsService extends EntitiesService
         ?string $placeId = null,
         ?Country $country = null,
         ?GeoRegion $parentGeoRegion = null,
-        ?GeoPoint $geoPoint = null,
+        ?GeocodableGeoPoint $geoPoint = null,
     ): ?GeoRegion {
         $geoRegion = null;
 

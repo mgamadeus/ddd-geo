@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DDD\Domain\Common\Repo\Argus\GeoEntities;
 
-use DDD\Domain\Base\Entities\Translatable\Translatable;
 use DDD\Domain\Base\Repo\Argus\Attributes\ArgusLoad;
 use DDD\Domain\Base\Repo\Argus\Traits\ArgusTrait;
 use DDD\Domain\Base\Repo\Argus\Utils\ArgusApiOperation;
@@ -12,6 +11,7 @@ use DDD\Domain\Base\Repo\Argus\Utils\ArgusCache;
 use DDD\Domain\Common\Entities\Addresses\PostalAddress;
 use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddress;
+use DDD\Domain\Base\Entities\Translatable\Translatable;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -19,7 +19,7 @@ use Psr\Cache\InvalidArgumentException;
 use ReflectionException;
 
 #[ArgusLoad(loadEndpoint: 'POST:/common/geodata/reverseGeocodePoint', cacheLevel: ArgusCache::CACHELEVEL_MEMORY_AND_DB, cacheTtl: ArgusCache::CACHE_TTL_ONE_DAY / 2)]
-class ArgusGeoPoint extends GeocodableGeoPoint
+class ArgusGeocodableGeoPoint extends GeocodableGeoPoint
 {
     use ArgusTrait;
 
@@ -67,7 +67,8 @@ class ArgusGeoPoint extends GeocodableGeoPoint
             }
             if (!($this->reverseGeocodedAddress ?? null)) {
                 $this->reverseGeocodedAddress = new ArgusPostalAddress();
-            } elseif ($this->reverseGeocodedAddress instanceof PostalAddress) {
+            }
+            elseif ($this->reverseGeocodedAddress instanceof PostalAddress) {
                 $argusPostaladdress = new ArgusPostalAddress();
                 $argusPostaladdress->fromEntity($this->reverseGeocodedAddress);
                 $this->reverseGeocodedAddress = $argusPostaladdress;
@@ -79,6 +80,8 @@ class ArgusGeoPoint extends GeocodableGeoPoint
 
         $this->postProcessLoadResponse($callResponseData);
     }
+
+
 
     /**
      * @return array|null

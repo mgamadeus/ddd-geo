@@ -22,7 +22,7 @@ use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
 use DDD\Domain\Base\Entities\LazyLoad\LazyLoadTrait;
 use DDD\Domain\Base\Entities\ValueObject;
 use DDD\Domain\Common\Entities\GeoEntities\GeoBounds;
-use DDD\Domain\Common\Entities\GeoEntities\GeoPoint;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Domain\Common\Validators\NotContainingEmail\NotContainingEmailConstraint;
 use DDD\Domain\Common\Validators\NotContainingOnlyDigits\NotContainingOnlyDigitsConstraint;
 use DDD\Infrastructure\Exceptions\BadRequestException;
@@ -211,11 +211,11 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     /** @var AddressComponents|null All raw address components from geocoding */
     public ?AddressComponents $addressComponents;
 
-    /** @var GeoPoint|null GeoPoint representing geographical latitude and longitude */
-    public ?GeoPoint $geoPoint;
+    /** @var GeocodableGeoPoint|null GeoPoint representing geographical latitude and longitude */
+    public ?GeocodableGeoPoint $geoPoint;
 
-    /** @var GeoPoint|null GeoPoint that has been selected by the customer by pin drop */
-    public ?GeoPoint $customerSelectedGeoPoint;
+    /** @var GeocodableGeoPoint|null GeoPoint that has been selected by the customer by pin drop */
+    public ?GeocodableGeoPoint $customerSelectedGeoPoint;
 
     /** @var GeoBounds|null Defins the bounds of the geographical Area */
     public ?GeoBounds $geoBounds;
@@ -370,7 +370,7 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
 
         // GeoPoint (v4: location.latitude / location.longitude)
         if ($addressObject->location ?? null) {
-            $postalAddress->geoPoint = new GeoPoint(
+            $postalAddress->geoPoint = new GeocodableGeoPoint(
                 $addressObject->location->latitude ?? 0.0, $addressObject->location->longitude ?? 0.0
             );
         }
@@ -745,12 +745,12 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
 
     /**
      * Returns Address GeoPoint, if not available, geocodes address before
-     * @return GeoPoint|null
+     * @return GeocodableGeoPoint|null
      * @throws BadRequestException
      * @throws InternalErrorException
      * @throws ReflectionException
      */
-    public function getGeoPoint(): ?GeoPoint
+    public function getGeoPoint(): ?GeocodableGeoPoint
     {
         if (!isset($this->geoPoint)) {
             $this->geocode();

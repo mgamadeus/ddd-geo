@@ -4,16 +4,20 @@ declare (strict_types=1);
 
 namespace DDD\Domain\Common\Entities\GeoEntities;
 
-use DDD\Domain\Common\Entities\Addresses\PostalAddress;
-use DDD\Domain\Common\Repo\Argus\GeoEntities\ArgusGeoPoint;
-use DDD\Domain\Common\Services\GeoEntities\GeoPointsService;
-use DDD\Infrastructure\Services\AppService;
 use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
 use DDD\Domain\Base\Entities\Translatable\Translatable;
+use DDD\Domain\Common\Entities\Addresses\PostalAddress;
+use DDD\Domain\Common\Repo\Argus\GeoEntities\ArgusGeocodableGeoPoint;
+use DDD\Domain\Common\Services\GeoEntities\GeoPointsService;
 use DDD\Infrastructure\Exceptions\NotFoundException;
+use DDD\Infrastructure\Services\DDDService;
 
-#[LazyLoadRepo(LazyLoadRepo::ARGUS, ArgusGeoPoint::class)]
-class GeoPoint extends \DDD\Domain\Common\Entities\GeoEntities\GeoPoint
+/**
+ * Extended GeoPoint with reverse geocoding capabilities.
+ * Extends the base GeoPoint from DDD Core (lat/lng value object with Haversine distance and spatial mapping).
+ */
+#[LazyLoadRepo(LazyLoadRepo::ARGUS, ArgusGeocodableGeoPoint::class)]
+class GeocodableGeoPoint extends GeoPoint
 {
     /** @var PostalAddress Reverse geocoded PostalAddress */
     public PostalAddress $reverseGeocodedAddress;
@@ -42,20 +46,12 @@ class GeoPoint extends \DDD\Domain\Common\Entities\GeoEntities\GeoPoint
             $this->languageCode = Translatable::getDefaultLanguageCode();
         }
         /** @var GeoPointsService $geoPointsService */
-        $geoPointsService = AppService::instance()->getService(GeoPointsService::class);
+        $geoPointsService = DDDService::instance()->getService(GeoPointsService::class);
         return $geoPointsService->reverseGeocodeGeoPoint($this);
     }
 
     /**
      * Method is custom implemented for efficiency
-     * @param $cached
-     * @param bool $returnUniqueKeyInsteadOfContent
-     * @param array $path
-     * @param bool $ignoreHideAttributes
-     * @param bool $ignoreNullValues
-     * @param bool $forPersistence
-     * @param int $flags
-     * @return mixed
      */
     public function toObject(
         $cached = true,

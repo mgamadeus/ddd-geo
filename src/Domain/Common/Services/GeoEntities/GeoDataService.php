@@ -7,7 +7,7 @@ namespace DDD\Domain\Common\Services\GeoEntities;
 use DDD\Domain\Common\Entities\Addresses\PostalAddress;
 use DDD\Domain\Common\Entities\Addresses\PostalAddresses;
 use DDD\Domain\Common\Entities\GeoEntities\GeoGooglePlace;
-use DDD\Domain\Common\Entities\GeoEntities\GeoPoint;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Domain\Common\Entities\PoliticalEntities\Countries\Countries;
 use DDD\Domain\Common\Entities\PoliticalEntities\Countries\Country;
 use DDD\Domain\Common\Entities\PoliticalEntities\Localities\Locality;
@@ -15,7 +15,7 @@ use DDD\Domain\Common\Entities\PoliticalEntities\States\State;
 use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddress;
 use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddresses;
 use DDD\Domain\Common\Repo\Argus\GeoEntities\ArgusGeoGooglePlaceById;
-use DDD\Domain\Common\Repo\Argus\GeoEntities\ArgusGeoPoint;
+use DDD\Domain\Common\Repo\Argus\GeoEntities\ArgusGeocodableGeoPoint;
 use DDD\Domain\Common\Repo\Argus\GeoEntities\ArgusGeoPoints;
 use DDD\Domain\Common\Repo\Argus\PoliticalEntities\ArgusLocality;
 use DDD\Domain\Common\Services\IssuesLogService;
@@ -440,7 +440,7 @@ class GeoDataService extends Service
      */
     public function reverseGeocodeCoordinates(float $lat, float $lng, string $language = 'en'): ?PostalAddress
     {
-        $geoPoint = new GeoPoint($lat, $lng, $language);
+        $geoPoint = new GeocodableGeoPoint($lat, $lng, $language);
         $postalAddress = $this->reverseGeocodeGeoPoint($geoPoint);
         if (!$postalAddress && $this->throwErrors) {
             throw new NotFoundException('GeoPoint cannot be geocoded');
@@ -450,13 +450,13 @@ class GeoDataService extends Service
 
     /**
      * Reverse geocodes GeoPoting
-     * @param GeoPoint $geoPoint
+     * @param GeocodableGeoPoint $geoPoint
      * @return PostalAddress|null
      * @throws NotFoundException
      */
-    public function reverseGeocodeGeoPoint(GeoPoint $geoPoint): ?PostalAddress
+    public function reverseGeocodeGeoPoint(GeocodableGeoPoint $geoPoint): ?PostalAddress
     {
-        $argusGeopoint = new ArgusGeoPoint();
+        $argusGeopoint = new ArgusGeocodableGeoPoint();
         $argusGeopoint->fromEntity($geoPoint);
         $argusGeopoint->argusLoad(false, false);
         $argusGeopoint->toEntity();

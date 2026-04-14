@@ -13,7 +13,7 @@ use DDD\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionType;
 use DDD\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionTypes;
 use DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType;
 use DDD\Domain\Base\Entities\DefaultObject;
-use DDD\Domain\Common\Entities\GeoEntities\GeoPoint;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Infrastructure\Cache\Cache;
 
 /**
@@ -190,7 +190,7 @@ class ArgusGeoRegion extends GeoRegion
 
             // Extract geoPoint from location (v4: location.latitude / location.longitude)
             if (isset($result->location)) {
-                $this->geoPoint = new GeoPoint(
+                $this->geoPoint = new GeocodableGeoPoint(
                     $result->location->latitude ?? 0.0,
                     $result->location->longitude ?? 0.0
                 );

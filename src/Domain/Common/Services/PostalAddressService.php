@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DDD\Domain\Common\Services;
 
 use DDD\Domain\Common\Entities\Addresses\PostalAddress;
-use DDD\Domain\Common\Entities\GeoEntities\GeoPoint;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddress;
 use DDD\Domain\Common\Services\GeoEntities\GeoDataService;
 use DDD\Infrastructure\Exceptions\BadRequestException;
@@ -88,7 +88,7 @@ class PostalAddressService extends Service
             $address->streetNo = $streetNo;
         }
         if ($lat && $lng) {
-            $address->geoPoint = new GeoPoint($lat, $lng);
+            $address->geoPoint = new GeocodableGeoPoint($lat, $lng);
         }
         if ($postalCode) {
             $address->postalCode = $postalCode;
@@ -169,7 +169,7 @@ class PostalAddressService extends Service
             }
         }
         if ($customerSelectedLat && $customerSelectedLng) {
-            $address->customerSelectedGeoPoint = new GeoPoint($customerSelectedLat, $customerSelectedLng);
+            $address->customerSelectedGeoPoint = new GeocodableGeoPoint($customerSelectedLat, $customerSelectedLng);
         }
 
         return $address;

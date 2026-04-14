@@ -3,7 +3,7 @@
     "description": "Addresses, geocoding, GeoRegions, GeoTypes for mgamadeus/ddd",
     "minimum-stability": "stable",
     "license": "MIT",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "authors": [
         {
             "name": "Marius-Eugen Gerdan",
@@ -16,15 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DDD\\Modules\\Geo\\": "src/",
-            "DDD\\Domain\\Common\\Entities\\Addresses\\": "src/Domain/Common/Entities/Addresses/",
-            "DDD\\Domain\\Common\\Entities\\GeoEntities\\": "src/Domain/Common/Entities/GeoEntities/",
-            "DDD\\Domain\\Common\\Repo\\DB\\GeoEntities\\": "src/Domain/Common/Repo/DB/GeoEntities/",
-            "DDD\\Domain\\Common\\Repo\\Argus\\Addresses\\": "src/Domain/Common/Repo/Argus/Addresses/",
-            "DDD\\Domain\\Common\\Repo\\Argus\\GeoEntities\\": "src/Domain/Common/Repo/Argus/GeoEntities/",
-            "DDD\\Domain\\Common\\Services\\GeoEntities\\": "src/Domain/Common/Services/GeoEntities/",
-            "DDD\\Domain\\Batch\\Services\\": "src/Domain/Batch/Services/",
-            "DDD\\Presentation\\Api\\Batch\\Common\\": "src/Presentation/Api/Batch/Common/"
+            "DDD\\": "src/"
         }
     },
     "extra": {
