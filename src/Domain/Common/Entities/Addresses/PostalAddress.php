@@ -1010,15 +1010,19 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         parent::mapFromRepository($repoObject);
         // Preload entitites
         if (isset($this->countryId)) {
+            /** @noinspection PhpExpressionResultUnusedInspection */
             $this->country;
         }
         if (isset($this->localityId)) {
+            /** @noinspection PhpExpressionResultUnusedInspection */
             $this->locality;
         }
         if (isset($this->stateId)) {
+            /** @noinspection PhpExpressionResultUnusedInspection */
             $this->state;
         }
         if (isset($this->geoRegionId)) {
+            /** @noinspection PhpExpressionResultUnusedInspection */
             $this->geoRegion;
         }
     }
