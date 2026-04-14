@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace DDD\Presentation\Api\Batch\Common;
 
 use DDD\Domain\Batch\Services\GoogleGeoService;
-use DDD\Domain\Common\Entities\Logs\ApiLogs\LogRequest;
-use DDD\Presentation\Api\Batch\Base\Dtos\BatchReponseDto;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
+use DDD\Presentation\Api\Batch\Base\Dtos\BatchReponseDto;
 use DDD\Presentation\Base\Controller\HttpController;
 use DDD\Presentation\Base\OpenApi\Attributes\Summary;
 use DDD\Presentation\Base\OpenApi\Attributes\Tag;
-use DDD\Presentation\Base\Router\Routes\Get;
 use DDD\Presentation\Base\Router\Routes\Post;
 use DDD\Presentation\Base\Router\Routes\Route;
 use stdClass;
@@ -20,69 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/common/geodata/')]
 #[Tag(group: 'Geocoding', name: 'Google Geocoding', description: 'Google Geocoding API Endpoints')]
-#[LogRequest(logTemplate: LogRequest::LOG_TEMPLATE_LOG_400_500)]
 class BatchGeocodingController extends HttpController
 {
-    /**
-     * Geocode an address string using Google Geocoding API
-     *
-     * Expects JSON body with:
-     * - address (string, required): The address to geocode
-     * - country (string, optional): Country short code for component filtering (e.g., 'DE')
-     * - language (string, optional): Response language code (e.g., 'de')
-     *
-     * Returns results keyed by language code for compatibility with ArgusPostalAddress
-     *
-     * @param Request $request
-     * @param GoogleGeoService $googleGeoService
-     * @return BatchReponseDto
-     * @throws BadRequestException
-     * @throws InternalErrorException
-     */
-    #[Post('geocodeAddress')]
-    #[Summary('Geocode Address')]
-    public function geocodeAddress(
-        Request $request,
-        GoogleGeoService $googleGeoService
-    ): BatchReponseDto {
-        $googleGeoService->throwErrors = true;
-
-        $body = $request->getContent();
-        $payload = json_decode($body);
-
-        if ($payload === null) {
-            throw new BadRequestException('Invalid JSON payload');
-        }
-
-        $address = $payload->address ?? null;
-        if (!$address) {
-            throw new BadRequestException('Missing required field: address');
-        }
-
-        $country = $payload->country ?? null;
-        $language = $payload->language ?? null;
-
-        $googleResponse = $googleGeoService->geocodeAddress($address, $country, $language);
-
-        $responseDto = new BatchReponseDto();
-
-        if (!$googleResponse || ($googleResponse->status ?? null) !== 'OK') {
-            $responseDto->status = $googleResponse->status ?? 'Not Found';
-            $responseDto->responseData = null;
-            return $responseDto;
-        }
-
-        // Package results keyed by language code for ArgusPostalAddress compatibility
-        $languageCode = $language ?? 'en';
-        $responseData = new stdClass();
-        $responseData->{$languageCode} = $googleResponse->results ?? [];
-
-        $responseDto->status = 'OK';
-        $responseDto->responseData = $responseData;
-
-        return $responseDto;
-    }
-
     /**
      * Reverse geocode coordinates using Google Geocoding API
      *
@@ -155,84 +92,6 @@ class BatchGeocodingController extends HttpController
     }
 
     /**
-     * Geocode a city by name or coordinates using Google Geocoding API
-     *
-     * Uses result_type=locality|postal_town|administrative_area_level_3|administrative_area_level_2
-     * to restrict results to city-level entities.
-     *
-     * Supports two modes:
-     * - Forward geocode: provide name to search by city name
-     * - Reverse geocode: provide lat+lng to find city at coordinates
-     *
-     * Expects JSON body with:
-     * - name (string, required if no lat/lng): The city name to geocode (e.g., 'Springfield', 'München')
-     * - lat (float, optional): Latitude for reverse geocoding
-     * - lng (float, optional): Longitude for reverse geocoding
-     * - language (string, optional): Response language code (e.g., 'de', 'en')
-     * - country (string, optional): Country short code to restrict results (e.g., 'DE', 'US')
-     * - state (string, optional): State/region code for component filtering (e.g., 'CA', 'BY')
-     *
-     * @param Request $request
-     * @param GoogleGeoService $googleGeoService
-     * @return BatchReponseDto
-     * @throws BadRequestException
-     * @throws InternalErrorException
-     */
-    #[Post('geocodeCity')]
-    #[Summary('Geocode City')]
-    public function geocodeCity(
-        Request $request,
-        GoogleGeoService $googleGeoService
-    ): BatchReponseDto {
-        $googleGeoService->throwErrors = true;
-
-        $body = $request->getContent();
-        $payload = json_decode($body);
-
-        if ($payload === null) {
-            throw new BadRequestException('Invalid JSON payload');
-        }
-
-        $name = $payload->name ?? null;
-        $lat = $payload->lat ?? null;
-        $lng = $payload->lng ?? null;
-
-        if (!$name && ($lat === null || $lng === null)) {
-            throw new BadRequestException('Missing required field: either name or lat+lng must be provided');
-        }
-
-        $language = $payload->language ?? null;
-        $country = $payload->country ?? null;
-        $state = $payload->state ?? null;
-
-        $googleResponse = $googleGeoService->geocodeCity(
-            $name,
-            $lat !== null ? (float)$lat : null,
-            $lng !== null ? (float)$lng : null,
-            $country,
-            $state,
-            $language
-        );
-
-        $responseDto = new BatchReponseDto();
-
-        if (!$googleResponse || ($googleResponse->status ?? null) !== 'OK') {
-            $responseDto->status = $googleResponse->status ?? 'Not Found';
-            $responseDto->responseData = null;
-            return $responseDto;
-        }
-
-        $languageCode = $language ?? 'en';
-        $responseData = new stdClass();
-        $responseData->{$languageCode} = $googleResponse->results ?? [];
-
-        $responseDto->status = 'OK';
-        $responseDto->responseData = $responseData;
-
-        return $responseDto;
-    }
-
-    /**
      * Forward geocode a state/region name using Google Geocoding API
      *
      * Uses result_type=administrative_area_level_1 to restrict results to state-level entities.
@@ -288,6 +147,66 @@ class BatchGeocodingController extends HttpController
             return $responseDto;
         }
 
+        $languageCode = $language ?? 'en';
+        $responseData = new stdClass();
+        $responseData->{$languageCode} = $googleResponse->results ?? [];
+
+        $responseDto->status = 'OK';
+        $responseDto->responseData = $responseData;
+
+        return $responseDto;
+    }
+
+    /**
+     * Geocode an address string using Google Geocoding API
+     *
+     * Expects JSON body with:
+     * - address (string, required): The address to geocode
+     * - country (string, optional): Country short code for component filtering (e.g., 'DE')
+     * - language (string, optional): Response language code (e.g., 'de')
+     *
+     * Returns results keyed by language code for compatibility with ArgusPostalAddress
+     *
+     * @param Request $request
+     * @param GoogleGeoService $googleGeoService
+     * @return BatchReponseDto
+     * @throws BadRequestException
+     * @throws InternalErrorException
+     */
+    #[Post('geocodeAddress')]
+    #[Summary('Geocode Address')]
+    public function geocodeAddress(
+        Request $request,
+        GoogleGeoService $googleGeoService
+    ): BatchReponseDto {
+        $googleGeoService->throwErrors = true;
+
+        $body = $request->getContent();
+        $payload = json_decode($body);
+
+        if ($payload === null) {
+            throw new BadRequestException('Invalid JSON payload');
+        }
+
+        $address = $payload->address ?? null;
+        if (!$address) {
+            throw new BadRequestException('Missing required field: address');
+        }
+
+        $country = $payload->country ?? null;
+        $language = $payload->language ?? null;
+
+        $googleResponse = $googleGeoService->geocodeAddress($address, $country, $language);
+
+        $responseDto = new BatchReponseDto();
+
+        if (!$googleResponse || ($googleResponse->status ?? null) !== 'OK') {
+            $responseDto->status = $googleResponse->status ?? 'Not Found';
+            $responseDto->responseData = null;
+            return $responseDto;
+        }
+
+        // Package results keyed by language code for ArgusPostalAddress compatibility
         $languageCode = $language ?? 'en';
         $responseData = new stdClass();
         $responseData->{$languageCode} = $googleResponse->results ?? [];
@@ -432,6 +351,84 @@ class BatchGeocodingController extends HttpController
             $lng !== null ? (float)$lng : null,
             $country,
             null, // no state filter for generic GeoRegion geocoding
+            $language
+        );
+
+        $responseDto = new BatchReponseDto();
+
+        if (!$googleResponse || ($googleResponse->status ?? null) !== 'OK') {
+            $responseDto->status = $googleResponse->status ?? 'Not Found';
+            $responseDto->responseData = null;
+            return $responseDto;
+        }
+
+        $languageCode = $language ?? 'en';
+        $responseData = new stdClass();
+        $responseData->{$languageCode} = $googleResponse->results ?? [];
+
+        $responseDto->status = 'OK';
+        $responseDto->responseData = $responseData;
+
+        return $responseDto;
+    }
+
+    /**
+     * Geocode a city by name or coordinates using Google Geocoding API
+     *
+     * Uses result_type=locality|postal_town|administrative_area_level_3|administrative_area_level_2
+     * to restrict results to city-level entities.
+     *
+     * Supports two modes:
+     * - Forward geocode: provide name to search by city name
+     * - Reverse geocode: provide lat+lng to find city at coordinates
+     *
+     * Expects JSON body with:
+     * - name (string, required if no lat/lng): The city name to geocode (e.g., 'Springfield', 'München')
+     * - lat (float, optional): Latitude for reverse geocoding
+     * - lng (float, optional): Longitude for reverse geocoding
+     * - language (string, optional): Response language code (e.g., 'de', 'en')
+     * - country (string, optional): Country short code to restrict results (e.g., 'DE', 'US')
+     * - state (string, optional): State/region code for component filtering (e.g., 'CA', 'BY')
+     *
+     * @param Request $request
+     * @param GoogleGeoService $googleGeoService
+     * @return BatchReponseDto
+     * @throws BadRequestException
+     * @throws InternalErrorException
+     */
+    #[Post('geocodeCity')]
+    #[Summary('Geocode City')]
+    public function geocodeCity(
+        Request $request,
+        GoogleGeoService $googleGeoService
+    ): BatchReponseDto {
+        $googleGeoService->throwErrors = true;
+
+        $body = $request->getContent();
+        $payload = json_decode($body);
+
+        if ($payload === null) {
+            throw new BadRequestException('Invalid JSON payload');
+        }
+
+        $name = $payload->name ?? null;
+        $lat = $payload->lat ?? null;
+        $lng = $payload->lng ?? null;
+
+        if (!$name && ($lat === null || $lng === null)) {
+            throw new BadRequestException('Missing required field: either name or lat+lng must be provided');
+        }
+
+        $language = $payload->language ?? null;
+        $country = $payload->country ?? null;
+        $state = $payload->state ?? null;
+
+        $googleResponse = $googleGeoService->geocodeCity(
+            $name,
+            $lat !== null ? (float)$lat : null,
+            $lng !== null ? (float)$lng : null,
+            $country,
+            $state,
             $language
         );
 
