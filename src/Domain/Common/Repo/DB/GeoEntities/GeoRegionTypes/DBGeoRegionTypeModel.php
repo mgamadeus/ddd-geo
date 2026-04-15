@@ -21,7 +21,7 @@ class DBGeoRegionTypeModel extends DoctrineModel
 
 	public const string TABLE_NAME = 'GeoRegionTypes';
 
-	public const string ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionType';
+	public const string ENTITY_CLASS = 'DDD\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionType';
 
 	#[ORM\Column(type: 'integer')]
 	public ?int $geoRegionId;

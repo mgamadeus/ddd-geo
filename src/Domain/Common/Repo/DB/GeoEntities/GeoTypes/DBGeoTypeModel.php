@@ -19,7 +19,7 @@ class DBGeoTypeModel extends DoctrineModel
 
 	public const string TABLE_NAME = 'GeoTypes';
 
-	public const string ENTITY_CLASS = 'App\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType';
+	public const string ENTITY_CLASS = 'DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType';
 
 	#[ORM\Column(type: 'string')]
 	public ?string $name;
