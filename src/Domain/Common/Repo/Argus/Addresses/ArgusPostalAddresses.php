@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace DDD\Domain\Common\Repo\Argus\Addresses;
 
+use DDD\Domain\Base\Entities\LazyLoad\LazyLoad;
 use DDD\Domain\Base\Repo\Argus\Attributes\ArgusLoad;
 use DDD\Domain\Base\Repo\Argus\Traits\ArgusTrait;
 use DDD\Domain\Base\Repo\Argus\Utils\ArgusApiOperation;
 use DDD\Domain\Base\Repo\Argus\Utils\ArgusCache;
 use DDD\Domain\Common\Entities\Addresses\PostalAddresses;
 use DDD\Domain\Common\Entities\PoliticalEntities\Countries\Country;
-use DDD\Domain\Base\Entities\LazyLoad\LazyLoad;
-use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
 use DDD\Infrastructure\Cache\Cache;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
@@ -32,25 +31,23 @@ class ArgusPostalAddresses extends PostalAddresses
     public ?int $countryId;
 
     /** @var Country|null Address country */
-    #[LazyLoad(repoType: LazyLoadRepo::LEGACY_DB)]
+    #[LazyLoad]
     public ?Country $country;
 
     /** @var string|null Language code of the address, as geodata can be localized, e.g. Munich vs. München, the language is relevant. If not provided, default native language of country is used. */
     public ?string $languageCode;
 
-    /**
-     * Return the input address that is set or empty string otherwise
-     * @return string
-     */
-    public function getInputAddress(): string
+    public function uniqueKey(): string
     {
-        if ($this->inputAddress ?? null) {
-            return trim($this->inputAddress, ' ');
+        $country = '';
+        $language = '';
+        if (isset($this->country) && $this->country?->shortCode) {
+            $country = $this->country->shortCode;
         }
-
-        $inputAddress = '';
-        $this->inputAddress = trim($inputAddress, ' ');
-        return $inputAddress;
+        if ($this->getLanguageCode()) {
+            $language = $this->getLanguageCode();
+        }
+        return static::uniqueKeyStatic($this->getInputAddress() . '_' . $country . '_' . $language);
     }
 
     /**
@@ -69,35 +66,18 @@ class ArgusPostalAddresses extends PostalAddresses
     }
 
     /**
-     * @return array|null
+     * Return the input address that is set or empty string otherwise
+     * @return string
      */
-    protected function getLoadPayload(): ?array
+    public function getInputAddress(): string
     {
-        $inputAddress = $this->getInputAddress();
-        if (!$inputAddress) {
-            return null;
+        if ($this->inputAddress ?? null) {
+            return trim($this->inputAddress, ' ');
         }
-        $loadingData = ['use_cache_data' => true, 'address' => $inputAddress];
-        if (isset($this->country) && ($this->country->shortCode ?? null)) {
-            $loadingData['country'] = $this->country->shortCode;
-        }
-        if ($this->getLanguageCode()) {
-            $loadingData['language'] = $this->getLanguageCode();
-        }
-        return ['body' => $loadingData];
-    }
 
-    public function uniqueKey(): string
-    {
-        $country = '';
-        $language = '';
-        if (isset($this->country) && $this->country?->shortCode) {
-            $country = $this->country->shortCode;
-        }
-        if ($this->getLanguageCode()) {
-            $language = $this->getLanguageCode();
-        }
-        return static::uniqueKeyStatic($this->getInputAddress() . '_' . $country . '_' . $language);
+        $inputAddress = '';
+        $this->inputAddress = trim($inputAddress, ' ');
+        return $inputAddress;
     }
 
     /**
@@ -151,5 +131,24 @@ class ArgusPostalAddresses extends PostalAddresses
         }
 
         $this->postProcessLoadResponse($callResponseData);
+    }
+
+    /**
+     * @return array|null
+     */
+    protected function getLoadPayload(): ?array
+    {
+        $inputAddress = $this->getInputAddress();
+        if (!$inputAddress) {
+            return null;
+        }
+        $loadingData = ['use_cache_data' => true, 'address' => $inputAddress];
+        if (isset($this->country) && ($this->country->shortCode ?? null)) {
+            $loadingData['country'] = $this->country->shortCode;
+        }
+        if ($this->getLanguageCode()) {
+            $loadingData['language'] = $this->getLanguageCode();
+        }
+        return ['body' => $loadingData];
     }
 }

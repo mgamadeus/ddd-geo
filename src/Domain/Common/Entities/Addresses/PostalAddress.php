@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace DDD\Domain\Common\Entities\Addresses;
 
+use DDD\Domain\Base\Entities\DefaultObject;
+use DDD\Domain\Base\Entities\Interfaces\IsEmptyInterface;
+use DDD\Domain\Base\Entities\LazyLoad\LazyLoad;
+use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
+use DDD\Domain\Base\Entities\LazyLoad\LazyLoadTrait;
+use DDD\Domain\Base\Entities\ValueObject;
+use DDD\Domain\Common\Entities\GeoEntities\GeoBounds;
+use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Domain\Common\Entities\GeoEntities\GeoRegions\GeoRegion;
 use DDD\Domain\Common\Entities\GeoEntities\GeoRegions\GeoRegions;
 use DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType;
@@ -15,14 +23,6 @@ use DDD\Domain\Common\Entities\PoliticalEntities\States\State;
 use DDD\Domain\Common\Repo\Argus\Addresses\ArgusPostalAddress;
 use DDD\Domain\Common\Services\GeoEntities\GeoRegionsService;
 use DDD\Domain\Common\Services\GeoEntities\PostalAddressService;
-use DDD\Domain\Base\Entities\DefaultObject;
-use DDD\Domain\Base\Entities\Interfaces\IsEmptyInterface;
-use DDD\Domain\Base\Entities\LazyLoad\LazyLoad;
-use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
-use DDD\Domain\Base\Entities\LazyLoad\LazyLoadTrait;
-use DDD\Domain\Base\Entities\ValueObject;
-use DDD\Domain\Common\Entities\GeoEntities\GeoBounds;
-use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
 use DDD\Domain\Common\Validators\NotContainingEmail\NotContainingEmailConstraint;
 use DDD\Domain\Common\Validators\NotContainingOnlyDigits\NotContainingOnlyDigitsConstraint;
 use DDD\Infrastructure\Exceptions\BadRequestException;
@@ -134,8 +134,6 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         'sublocality_level_1',
     ];
 
-
-
     /**
      * @var string|null A premise indicates a named location, usually a building or collection of buildings with a common name.
      * Verry common in UK and british colonies, e.g. "Grand Building" in London
@@ -176,7 +174,7 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     public ?int $localityId;
 
     /** @var Locality|null Address locality (city-equivalent, derived from Google's locality/postal_town/settlement fallback) */
-    #[LazyLoad(repoType: LazyLoadRepo::LEGACY_DB)]
+    #[LazyLoad]
     public ?Locality $locality;
 
     /** @var SubCounty Address subCounty (administrative area level 3) e.g. Firenze in Italy */
@@ -189,14 +187,14 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     public ?int $stateId;
 
     /** @var State|null Address state (administrative area level 1) */
-    #[LazyLoad(repoType: LazyLoadRepo::LEGACY_DB)]
+    #[LazyLoad]
     public ?State $state;
 
     /** @var int|null id of Country */
     public ?int $countryId;
 
     /** @var Country|null Address country */
-    #[LazyLoad(repoType: LazyLoadRepo::LEGACY_DB)]
+    #[LazyLoad]
     public ?Country $country;
 
     /** @var int|null FK to the most specific (leaf) GeoRegion for this address */
