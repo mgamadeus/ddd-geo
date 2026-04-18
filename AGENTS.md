@@ -26,7 +26,7 @@ src/
 |       +-- Repo/
 |       |   +-- Argus/                       [Geocoding via Argus API]
 |       |   +-- DB/                          [Doctrine persistence for GeoRegion, GeoType, GeoRegionType]
-|       +-- Services/GeoEntities/            [GeoDataService, GeoRegionsService, PostalAddressService, etc.]
+|       +-- Services/GeoEntities/            [PostalAddressService, GeoRegionsService, GeoPointsService, GeoTypesService]
 +-- Modules/Geo/GeoModule.php               [DDDModule entry point]
 +-- Presentation/Api/Batch/Common/           [BatchGeocodingController -- geocoding endpoints]
 ```
@@ -79,11 +79,10 @@ Address String/Coordinates
 
 | Service | Purpose |
 |---------|---------|
-| **GeoDataService** | Orchestrator: geocode/reverse-geocode, country/state/locality lookup, geocode tracking (Redis) |
+| **PostalAddressService** | Address creation factory, forward geocoding (by string, Place ID, multi-result), geocode anti-spam tracking (Redis), country/locality resolution via CountriesService/LocalitiesService |
+| **GeoPointsService** | Reverse geocoding: coordinates or GeoPoint to PostalAddress |
 | **GeoRegionsService** | Hierarchy-aware find-or-create, type assignment, localized name updates |
 | **GeoTypesService** | Import from constants, find-or-create by name |
-| **GeoPointsService** | Reverse geocoding for GeocodableGeoPoint |
-| **PostalAddressService** | Address creation factory, geocoding trigger, formatted address generation |
 | **GoogleGeoService** | Google Geocoding API wrapper (batch) |
 | **GooglePlacesService** | Google Places API wrapper (batch) |
 
@@ -122,6 +121,7 @@ Secured with `ROLE_SUPER_ADMIN`.
 5. **Geocode tracking** -- Redis-based attempt tracking prevents spam (max 5 attempts/60s before cache bypass)
 6. **Translatable region names** -- GeoRegion names stored as JSON with language/country/style variants
 7. **Precision tracking** -- PostalAddress records geocoding accuracy (ROOFTOP, APPROXIMATE, etc.)
+8. **Political entity resolution** -- PostalAddressService resolves countries via CountriesService and localities via LocalitiesService from ddd-common-political
 
 ## Coding Conventions
 
@@ -132,6 +132,7 @@ Module-specific notes:
 - PostalAddress is a ValueObject (not Entity) -- it's embedded in other entities, not persisted standalone
 - GeoRegion slugs are derived from hierarchy -- never set manually
 - Always use `GeoRegionsService::findOrCreateGeoRegionAndUpdateLocalizedName()` for region creation (handles translation, type assignment, and deduplication)
+- Use `PostalAddressService` for forward geocoding, `GeoPointsService` for reverse geocoding
 
 ## Environment Variables
 

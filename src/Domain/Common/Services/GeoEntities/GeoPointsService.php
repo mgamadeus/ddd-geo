@@ -13,6 +13,25 @@ use DDD\Infrastructure\Services\Service;
 class GeoPointsService extends Service
 {
     /**
+     * Reverse geocodes coordinates and returns the corresponding PostalAddress
+     *
+     * @param float $lat Latitude
+     * @param float $lng Longitude
+     * @param string $language Language code for the response (default: 'en')
+     * @return PostalAddress|null The reverse geocoded postal address, or null if not found
+     * @throws NotFoundException When the coordinates cannot be geocoded and throwErrors is enabled
+     */
+    public function reverseGeocodeCoordinates(float $lat, float $lng, string $language = 'en'): ?PostalAddress
+    {
+        $geoPoint = new GeocodableGeoPoint($lat, $lng, $language);
+        $postalAddress = $this->reverseGeocodeGeoPoint($geoPoint);
+        if (!$postalAddress && $this->throwErrors) {
+            throw new NotFoundException('GeoPoint cannot be geocoded');
+        }
+        return $postalAddress;
+    }
+
+    /**
      * Reverse geocodes a GeoPoint and returns the corresponding PostalAddress
      *
      * Uses ArgusGeoPoint to call the batch reverse geocoding endpoint
@@ -26,7 +45,7 @@ class GeoPointsService extends Service
     {
         $argusGeoPoint = new ArgusGeocodableGeoPoint();
         $argusGeoPoint->fromEntity($geoPoint);
-        $argusGeoPoint->argusLoad();
+        $argusGeoPoint->argusLoad(false, false);
         $argusGeoPoint->toEntity();
         $postalAddress = $argusGeoPoint->reverseGeocodedAddress ?? null;
         if (!$postalAddress && $this->throwErrors) {

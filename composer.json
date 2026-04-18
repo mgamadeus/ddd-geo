@@ -3,7 +3,7 @@
     "description": "Addresses, geocoding, GeoRegions, GeoTypes for mgamadeus/ddd",
     "minimum-stability": "stable",
     "license": "MIT",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "authors": [
         {
             "name": "Marius-Eugen Gerdan",

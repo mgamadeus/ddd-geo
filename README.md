@@ -42,11 +42,10 @@ Each GeoRegion has a `parentGeoRegionId`, translatable `name`, `placeId` (Google
 
 | Service | Purpose |
 |---------|---------|
-| **GeoDataService** | Orchestrator: geocode/reverse-geocode, country/state/locality lookup, Redis-based geocode tracking |
+| **PostalAddressService** | Address creation factory, forward geocoding (by string, Place ID, multi-result), geocode anti-spam tracking (Redis), country/locality resolution |
+| **GeoPointsService** | Reverse geocoding: coordinates or GeoPoint to PostalAddress |
 | **GeoRegionsService** | Hierarchy-aware find-or-create, type assignment, localized name updates, slug generation |
 | **GeoTypesService** | Import 40+ types from constants, find-or-create by name (normalizes to UPPERCASE) |
-| **GeoPointsService** | Reverse geocoding for GeocodableGeoPoint |
-| **PostalAddressService** | Address creation factory, geocoding trigger, formatted address and addressLine1 generation |
 | **GoogleGeoService** | Google Geocoding API wrapper (batch layer) |
 | **GooglePlacesService** | Google Places API wrapper (batch layer) |
 
@@ -54,14 +53,15 @@ Each GeoRegion has a `parentGeoRegionId`, translatable `name`, `placeId` (Google
 
 ```php
 // Forward geocoding
-$geoDataService = GeoDataService::instance();
-$address = $geoDataService->geocodeAddressByAddressString('42 Main St, New York, NY 10001');
+$postalAddressService = PostalAddressService::instance();
+$address = $postalAddressService->geocodeAddressByAddressString('42 Main St, New York, NY 10001');
 echo $address->formattedAddress;
 echo $address->geoPoint->lat . ', ' . $address->geoPoint->lng;
 echo $address->precision;  // ROOFTOP
 
 // Reverse geocoding
-$address = $geoDataService->reverseGeocodeCoordinates(40.7128, -74.0060, 'en');
+$geoPointsService = GeoPointsService::instance();
+$address = $geoPointsService->reverseGeocodeCoordinates(40.7128, -74.0060, 'en');
 
 // GeoRegion lookup
 $geoRegionsService = GeoRegions::getService();
@@ -69,7 +69,6 @@ $region = $geoRegionsService->findByPlaceId('ChIJCSF8lBZEwokRhngABHRcdoJ');
 $state = $region->findAncestorByType(GeoType::TYPE_ADMINISTRATIVE_AREA_LEVEL_1);
 
 // Address creation
-$postalAddressService = PostalAddressService::instance();
 $address = $postalAddressService->createAddress(
     street: 'Main St', streetNo: '42', postalCode: '10001',
     localityName: 'New York', countryShortCode: 'US', geocode: true
@@ -163,6 +162,8 @@ locality -> postal_town -> admin_area_level_3 -> sublocality_level_1 -> admin_ar
 
 **Precision tracking** -- PostalAddress records geocoding accuracy (ROOFTOP, RANGE_INTERPOLATED, GEOMETRIC_CENTER, APPROXIMATE, NOT_FOUND).
 
+**Political entity resolution** -- PostalAddressService resolves countries via CountriesService and localities via LocalitiesService from ddd-common-political.
+
 ## GeoPoint vs GeocodableGeoPoint
 
 DDD Core provides `GeoPoint` -- lightweight lat/lng with Haversine distance and Doctrine spatial mapping. No external dependencies.
@@ -199,6 +200,7 @@ All [mgamadeus/ddd conventions](https://github.com/mgamadeus/ddd) apply. Module-
 - GeoRegion slugs are auto-derived from hierarchy -- never set manually
 - Always use `GeoRegionsService::findOrCreateGeoRegionAndUpdateLocalizedName()` for region creation
 - GeoRegion is `#[NoRecursiveUpdate]` -- updating a parent region does not cascade to children
+- Use `PostalAddressService` for forward geocoding, `GeoPointsService` for reverse geocoding
 
 ## License
 

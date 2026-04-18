@@ -1,9 +1,9 @@
 ---
-name: geo-module-specialist
+name: ddd-module-geo-specialist
 description: Work with the ddd-common-geo module -- PostalAddress, GeoRegion hierarchy, geocoding, reverse geocoding, Argus integration, GeoType lookup, and Google Places. Use when creating or modifying geo entities, services, or geocoding logic.
 metadata:
   author: mgamadeus
-  version: "1.0.0"
+  version: "1.1.0"
   framework: mgamadeus/ddd
   module: mgamadeus/ddd-common-geo
 ---
@@ -34,7 +34,7 @@ src/Domain/Common/Entities/GeoEntities/GeoTypes/       # GeoType (lookup)
 src/Domain/Common/Entities/GeoEntities/GeoRegionTypes/ # GeoRegionType (N:N junction)
 src/Domain/Common/Repo/Argus/                  # Geocoding via Argus API
 src/Domain/Common/Repo/DB/GeoEntities/         # DB repos for persisted entities
-src/Domain/Common/Services/GeoEntities/        # All geo services
+src/Domain/Common/Services/GeoEntities/        # PostalAddressService, GeoRegionsService, GeoPointsService, GeoTypesService
 src/Domain/Batch/Services/Geo/                 # Google API wrappers
 src/Presentation/Api/Batch/Common/             # Batch geocoding endpoints
 ```
@@ -151,25 +151,46 @@ public string $precision;  // ROOFTOP, RANGE_INTERPOLATED, GEOMETRIC_CENTER, APP
 ### Geocoding
 
 ```php
-// Via PostalAddressService
+// Via PostalAddressService (central geocoding service)
 $postalAddressService = PostalAddressService::instance();
+
+// Create and optionally geocode an address
 $address = $postalAddressService->createAddress(
     street: 'Main Street',
     streetNo: '42',
     postalCode: '10001',
     localityName: 'New York',
-    stateName: 'New York',
     countryShortCode: 'US',
     geocode: true
 );
 
-// Direct geocoding
-$address->geocode(useCache: true);
+// Forward geocode by address string
+$address = $postalAddressService->geocodeAddressByAddressString('42 Main St, New York, NY 10001');
 
-// Via GeoDataService (orchestrator)
-$geoDataService = GeoDataService::instance();
-$address = $geoDataService->geocodeAddressByAddressString('42 Main St, New York, NY 10001');
-$address = $geoDataService->geocodeAddressByPlaceId('ChIJd8BlQ2BZwokRAFUEcm_qrcA', 'en');
+// Forward geocode by Google Place ID
+$address = $postalAddressService->geocodeAddressByPlaceId('ChIJd8BlQ2BZwokRAFUEcm_qrcA', 'en');
+
+// Multiple results
+$addresses = $postalAddressService->geocodeAddressByAddressStringAll('Main Street');
+
+// Geocode existing address
+$postalAddressService->geoCodeAddress($address, useCache: true);
+
+// Create from raw Google response
+$address = $postalAddressService->createAddressFromRawGoogleResponse($apiResponse, 'en');
+```
+
+### Reverse Geocoding
+
+```php
+// Via GeoPointsService
+$geoPointsService = GeoPointsService::instance();
+
+// Reverse geocode by coordinates
+$address = $geoPointsService->reverseGeocodeCoordinates(40.7128, -74.0060, 'en');
+
+// Reverse geocode a GeoPoint object
+$address = $geoPointsService->reverseGeocodeGeoPoint($geoPoint);
 ```
 
 ### Settlement Fallback Chain
@@ -261,41 +282,53 @@ $result = $geoTypesService->importGeoTypesFromConstants();
 $type = $geoTypesService->findOrCreateByName('locality');  // Stored as "LOCALITY"
 ```
 
-### GeoDataService -- Orchestrator
+### PostalAddressService -- Address Factory & Geocoding
 
-```php
-$geoDataService = GeoDataService::instance();
-
-// Forward geocoding
-$address = $geoDataService->geocodeAddressByAddressString('42 Main St, New York');
-$address = $geoDataService->geocodeAddressByPlaceId($placeId, 'en');
-
-// Reverse geocoding
-$address = $geoDataService->reverseGeocodeCoordinates(40.7128, -74.0060, 'en');
-$address = $geoDataService->reverseGeocodeGeoPoint($geoPoint);
-
-// Multiple results
-$addresses = $geoDataService->geocodeAddressByAddressStringAll('Main Street');
-$addresses = $geoDataService->reverseGeocodeAll(40.7128, -74.0060);
-```
-
-### PostalAddressService -- Address Factory
+The central service for address creation and all forward geocoding operations:
 
 ```php
 $postalAddressService = PostalAddressService::instance();
 
-// Create from components
+// Create from components (resolves country/locality via CountriesService/LocalitiesService)
 $address = $postalAddressService->createAddress(
     street: 'Main St', streetNo: '42',
     postalCode: '10001', localityName: 'New York',
     countryShortCode: 'US', geocode: true
 );
 
+// Forward geocoding by address string
+$address = $postalAddressService->geocodeAddressByAddressString('42 Main St, New York');
+
+// Forward geocoding by Google Place ID
+$address = $postalAddressService->geocodeAddressByPlaceId($placeId, 'en');
+
+// Multiple results
+$addresses = $postalAddressService->geocodeAddressByAddressStringAll('Main Street');
+
 // Create from raw Google response
 $address = $postalAddressService->createAddressFromRawGoogleResponse($apiResponse, 'en');
 
 // Geocode existing address
 $postalAddressService->geoCodeAddress($address, useCache: true);
+
+// Country/short code normalization (for external sources like Yext, Facebook)
+$normalized = $postalAddressService->normalizeCountryShortCode('uk'); // Returns 'gb'
+$normalized = $postalAddressService->normalizeCountryName('united states'); // Returns 'USA'
+
+// Geocode anti-spam tracking (Redis-based)
+$shouldBypass = $postalAddressService->shouldForceNoCache($inputAddress, $languageCode);
+```
+
+### GeoPointsService -- Reverse Geocoding
+
+```php
+$geoPointsService = GeoPointsService::instance();
+
+// Reverse geocode coordinates to PostalAddress
+$address = $geoPointsService->reverseGeocodeCoordinates(40.7128, -74.0060, 'en');
+
+// Reverse geocode a GeocodableGeoPoint
+$address = $geoPointsService->reverseGeocodeGeoPoint($geoPoint);
 ```
 
 ---
@@ -315,7 +348,7 @@ Argus repos use `#[ArgusLoad(loadEndpoint: '...', cacheLevel: MEMORY_AND_DB, cac
 
 ### Geocode Tracking (Anti-Spam)
 
-`GeoDataService` tracks geocoding attempts in Redis. After 5 attempts within 60 seconds for the same address, cache is bypassed to force a fresh API call. This prevents stale cache from blocking legitimate re-geocoding.
+`PostalAddressService` tracks geocoding attempts in Redis. After 5 attempts within 60 seconds for the same address, cache is bypassed to force a fresh API call. This prevents stale cache from blocking legitimate re-geocoding.
 
 ---
 
@@ -371,6 +404,7 @@ GOOGLE_GEOCODING_API_KEY=...                # Google API key (for batch services
 - [ ] Use `GeoRegionsService::findOrCreateGeoRegionAndUpdateLocalizedName()` for region creation (not direct `new GeoRegion()`)
 - [ ] Normalize Google type names via `GeoType::normalizeFromGoogle()`
 - [ ] Use `PostalAddressService::createAddress()` for address creation
+- [ ] Use `PostalAddressService` for forward geocoding, `GeoPointsService` for reverse geocoding
 - [ ] Consider precision level when using geocoded coordinates
 - [ ] GeoRegion slugs are auto-generated -- never set manually
 - [ ] PostalAddress is a ValueObject, not an Entity -- don't try to persist standalone
