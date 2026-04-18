@@ -88,7 +88,7 @@ class ArgusGeoRegion extends GeoRegion
         ];
 
         // Location bias for disambiguation (e.g., "Springfield" in different states)
-        if (isset($this->geoPoint) && isset($this->geoPoint->lat) && isset($this->geoPoint->lng)) {
+        if (isset($this->geoPoint->lat) && isset($this->geoPoint->lng)) {
             $body['lat'] = $this->geoPoint->lat;
             $body['lng'] = $this->geoPoint->lng;
         }
@@ -124,7 +124,7 @@ class ArgusGeoRegion extends GeoRegion
 
         $lat = '';
         $lng = '';
-        if (isset($this->geoPoint) && isset($this->geoPoint->lat) && isset($this->geoPoint->lng)) {
+        if (isset($this->geoPoint->lat) && isset($this->geoPoint->lng)) {
             $lat = (string)$this->geoPoint->lat;
             $lng = (string)$this->geoPoint->lng;
         }

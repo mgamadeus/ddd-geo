@@ -325,7 +325,7 @@ class GoogleGeoService extends Service
     protected function handleGuzzleException(GuzzleException $e, string $operation): ?stdClass
     {
         $exceptionDetails = new ExceptionDetails();
-        $errorMessage = "Google Geocoding API Error in {$operation}";
+        $errorMessage = "Google Geocoding API Error in $operation";
 
         if ($e->hasResponse()) {
             $errorBody = $e->getResponse()->getBody()->getContents();
@@ -369,7 +369,7 @@ class GoogleGeoService extends Service
                 'operation' => $operation,
                 'message' => $t->getMessage(),
             ]);
-            throw new InternalErrorException("Unexpected error in {$operation}", $exceptionDetails);
+            throw new InternalErrorException("Unexpected error in $operation", $exceptionDetails);
         }
         return null;
     }

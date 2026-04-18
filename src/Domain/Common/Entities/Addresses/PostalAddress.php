@@ -470,7 +470,7 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         if ($this->languageCode ?? false) {
             return $this->languageCode;
         }
-        if (isset($this->country) && isset($this->country->languageCode)) {
+        if (isset($this->country->languageCode)) {
             $this->languageCode = $this->country->getDefaultLanguage()->languageCode;
             return $this->languageCode;
         }
@@ -630,13 +630,13 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
                 $componentsToEliminate[] = str_replace('-' . $this->postalCodeSuffix, '', $this->postalCode);
             }
         }
-        if (isset($this->locality) && isset($this->locality->name)) {
+        if (isset($this->locality->name)) {
             $componentsToEliminate[] = $this->locality->name;
         }
-        if (isset($this->country) && isset($this->country->googleLocationName)) {
+        if (isset($this->country->googleLocationName)) {
             $componentsToEliminate[] = $this->country->googleLocationName;
         }
-        if (isset($this->country) && isset($this->country->name)) {
+        if (isset($this->country->name)) {
             $componentsToEliminate[] = $this->country->name;
             $componentsToEliminate[] = $this->country->shortCode;
             $componentsToEliminate[] = $this->country->tld;
@@ -649,11 +649,11 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
             $componentsToEliminate[] = $this->subCounty->name;
             $componentsToEliminate[] = $this->subCounty->shortCode;
         }
-        if (isset($this->state) && isset($this->state->name)) {
+        if (isset($this->state->name)) {
             $componentsToEliminate[] = $this->state->name;
             $componentsToEliminate[] = $this->state->shortCode;
         }
-        if (isset($this->state) && isset($this->state->shortCode)) {
+        if (isset($this->state->shortCode)) {
             $componentsToEliminate[] = $this->state->shortCode;
         }
         if ($this->subpremise ?? null) {
@@ -829,14 +829,14 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
             return false;
         }
 
-        if (isset($this->country) && isset($this->country->id) && isset($other->country) && isset($other->country->id) && $this->country->id != $other->country->id) {
+        if (isset($this->country->id) && isset($other->country->id) && $this->country->id != $other->country->id) {
             return false;
         }
 
-        if (isset($this->locality) && isset($this->locality->id) && isset($other->locality) && isset($other->locality->id) && $this->locality->id != $other->locality->id) {
+        if (isset($this->locality->id) && isset($other->locality->id) && $this->locality->id != $other->locality->id) {
             return false;
         }
-        if (isset($this->state) && isset($this->state->id) && isset($other->state) && isset($other->state->id) && $this->state->id != $other->state->id) {
+        if (isset($this->state->id) && isset($other->state->id) && $this->state->id != $other->state->id) {
             return false;
         }
         // e.g. GEOMETRIC_CENTER cs ROOFTOP
@@ -857,7 +857,7 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
      */
     public function getComposedFormattedAddressFromAddressComponentsUsingDefaultFormatFromCountry(): string
     {
-        $addressFormat = isset($this->country) && isset($this->country->addressSetting->addressFormat) ? $this->country->addressSetting->addressFormat : '';
+        $addressFormat = isset($this->country->addressSetting->addressFormat) ? $this->country->addressSetting->addressFormat : '';
 
         if (isset($this->addressLine1) || isset($this->addressLine2)) {
             $lineAddress = isset($this->addressLine1) ? trim($this->addressLine1, ' ') : '';
@@ -870,8 +870,8 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
                 $addressFormat
             );
         } else {
-            $addressFormat = str_replace('%street%', isset($this->street) ? $this->street : '', $addressFormat);
-            $addressFormat = str_replace('%streetNo%', isset($this->streetNo) ? $this->streetNo : '', $addressFormat);
+            $addressFormat = str_replace('%street%', $this->street ?? '', $addressFormat);
+            $addressFormat = str_replace('%streetNo%', $this->streetNo ?? '', $addressFormat);
         }
 
         $addressFormat = str_replace(
@@ -881,12 +881,12 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         );
         $addressFormat = str_replace(
             '%locality%',
-            isset($this->locality) && isset($this->locality->name) ? (!str_contains($addressFormat, $this->locality->name) ? $this->locality->name : '') : '',
+            isset($this->locality->name) ? (!str_contains($addressFormat, $this->locality->name) ? $this->locality->name : '') : '',
             $addressFormat
         );
         $addressFormat = str_replace(
             '%state.shortCode%',
-            isset($this->state) && isset($this->state->shortCode) ? (!str_contains(
+            isset($this->state->shortCode) ? (!str_contains(
                 $addressFormat,
                 $this->state->shortCode
             ) ? $this->state->shortCode : '') : '',
@@ -894,12 +894,12 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         );
         $addressFormat = str_replace(
             '%state.name%',
-            isset($this->state) && isset($this->state->name) ? (!str_contains($addressFormat, $this->state->name) ? $this->state->name : '') : '',
+            isset($this->state->name) ? (!str_contains($addressFormat, $this->state->name) ? $this->state->name : '') : '',
             $addressFormat
         );
         $addressFormat = str_replace(
             '%country.name%',
-            isset($this->country) && isset($this->country->name) ? (!str_contains(
+            isset($this->country->name) ? (!str_contains(
                 $addressFormat,
                 $this->country->name
             ) ? $this->country->name : '') : '',
@@ -922,13 +922,13 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         if (isset($this->formattedAddress)) {
             $key .= $this->formattedAddress;
         }
-        if (isset($this->country) && isset($this->country->shortCode)) {
+        if (isset($this->country->shortCode)) {
             $key .= '_' . $this->country->shortCode;
         }
-        if (isset($this->locality) && isset($this->locality->name)) {
+        if (isset($this->locality->name)) {
             $key .= '_' . $this->locality->name;
         }
-        if (isset($this->state) && isset($this->state->name)) {
+        if (isset($this->state->name)) {
             $key .= '_' . $this->state->name;
         }
         if (isset($this->streetNo)) {

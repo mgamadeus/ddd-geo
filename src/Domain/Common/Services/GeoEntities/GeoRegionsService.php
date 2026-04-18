@@ -13,8 +13,8 @@ use DDD\Domain\Common\Entities\PoliticalEntities\Countries\Country;
 use DDD\Domain\Common\Repo\Argus\GeoEntities\GeoRegions\ArgusGeoRegion;
 use DDD\Domain\Common\Repo\DB\GeoEntities\GeoRegions\DBGeoRegion;
 use DDD\Domain\Common\Repo\DB\GeoEntities\GeoRegions\DBGeoRegions;
-use DDD\Domain\Common\Services\PoliticalEntities\Entity;
-use DDD\Infrastructure\Services\AppService;
+use DDD\Domain\Base\Entities\Entity;
+use DDD\Infrastructure\Services\DDDService;
 use DDD\Domain\Base\Entities\Translatable\Translatable;
 use DDD\Domain\Base\Services\EntitiesService;
 use DDD\Domain\Common\Entities\GeoEntities\GeocodableGeoPoint;
@@ -34,7 +34,7 @@ use ReflectionException;
  */
 class GeoRegionsService extends EntitiesService
 {
-    public const DEFAULT_ENTITY_CLASS = GeoRegion::class;
+    public const string DEFAULT_ENTITY_CLASS = GeoRegion::class;
 
     /**
      * Address component types eligible for GeoRegion hierarchy creation,
@@ -187,7 +187,7 @@ class GeoRegionsService extends EntitiesService
             $geoRegion->setSlugBasedOnHierarchy();
 
             // Persist with Translatable settings for the given language
-            AppService::instance()->deactivateEntityRightsRestrictions();
+            DDDService::instance()->deactivateEntityRightsRestrictions();
             Translatable::setTranslationSettingsSnapshot();
             Translatable::setCurrentCountryCode(null);
             Translatable::setCurrentLanguageCode($languageCode);
@@ -210,7 +210,7 @@ class GeoRegionsService extends EntitiesService
             // ── Create N:N type assignments ──
             //$this->assignTypesToGeoRegion($geoRegion, $types);
 
-            AppService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
+            DDDService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
 
             $this->expandGeoRegionWithParentsAndTypes($geoRegion);
             return $geoRegion;
@@ -231,7 +231,7 @@ class GeoRegionsService extends EntitiesService
             && $parentGeoRegion->id !== $geoRegion->id;
 
         if ($nameChanged || $placeIdChanged || $parentChanged) {
-            AppService::instance()->deactivateEntityRightsRestrictions();
+            DDDService::instance()->deactivateEntityRightsRestrictions();
             if ($nameChanged) {
                 $geoRegion->setTranslationForProperty('name', $localizedName, $languageCode);
             }
@@ -243,7 +243,7 @@ class GeoRegionsService extends EntitiesService
                 $geoRegion->parentGeoRegionId = $parentGeoRegion->id;
             }
             $geoRegion->update();
-            AppService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
+            DDDService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
         }
 
         $this->expandGeoRegionWithParentsAndTypes($geoRegion);
@@ -283,6 +283,7 @@ class GeoRegionsService extends EntitiesService
             if ($geoRegionTypes) {
                 foreach ($geoRegionTypes->getElements() as $geoRegionType) {
                     // Force lazy-load geoType on each junction entity
+                    /** @noinspection PhpExpressionResultUnusedInspection */
                     $geoRegionType->geoType;
                 }
             }
@@ -329,7 +330,7 @@ class GeoRegionsService extends EntitiesService
         $repoClass = $this->getEntityRepoClassInstance();
         $queryBuilder = $repoClass::createQueryBuilder();
         $alias = $repoClass::getBaseModelAlias();
-        $queryBuilder->andWhere("{$alias}.placeId = :placeId")
+        $queryBuilder->andWhere("$alias.placeId = :placeId")
             ->setParameter('placeId', $placeId);
         return $repoClass->find($queryBuilder);
     }
@@ -361,24 +362,24 @@ class GeoRegionsService extends EntitiesService
         $queryBuilder = $repoClass::createQueryBuilder(true);
         $alias = $repoClass::getBaseModelAlias();
         $queryBuilder->andWhere(
-            "MATCH ({$alias}.name) AGAINST (:searchName IN BOOLEAN MODE) > 0
-            AND {$alias}.countryId = :countryId"
+            "MATCH ($alias.name) AGAINST (:searchName IN BOOLEAN MODE) > 0
+            AND $alias.countryId = :countryId"
         )->setParameter('searchName', $name)->setParameter('countryId', $country->id);
 
         if ($parentGeoRegion && isset($parentGeoRegion->id)) {
-            $queryBuilder->andWhere("{$alias}.parentGeoRegionId = :parentId")
+            $queryBuilder->andWhere("$alias.parentGeoRegionId = :parentId")
                 ->setParameter('parentId', $parentGeoRegion->id);
         } else {
-            $queryBuilder->andWhere("{$alias}.parentGeoRegionId IS NULL");
+            $queryBuilder->andWhere("$alias.parentGeoRegionId IS NULL");
         }
 
         // Type-aware filter: JOIN through GeoRegionTypes → GeoType to match the hierarchy-relevant type
         if ($hierarchyType) {
             $normalizedTypeName = GeoType::normalizeFromGoogle($hierarchyType);
             $queryBuilder
-                ->innerJoin("{$alias}.geoRegionTypes", 'grt')
-                ->innerJoin("grt.geoType", 'gt')
-                ->andWhere("gt.name = :hierarchyTypeName")
+                ->innerJoin("$alias.geoRegionTypes", 'grt')
+                ->innerJoin('grt.geoType', 'gt')
+                ->andWhere('gt.name = :hierarchyTypeName')
                 ->setParameter('hierarchyTypeName', $normalizedTypeName);
         }
 
@@ -398,7 +399,7 @@ class GeoRegionsService extends EntitiesService
         $queryBuilder = $repoClass::createQueryBuilder();
         $alias = $repoClass::getBaseModelAlias();
         $queryBuilder->andWhere(
-            "{$alias}.shortCode = :shortCode AND {$alias}.countryId = :countryId"
+            "$alias.shortCode = :shortCode AND $alias.countryId = :countryId"
         )->setParameter('shortCode', $shortCode)->setParameter('countryId', $country->id);
         return $repoClass->find($queryBuilder);
     }

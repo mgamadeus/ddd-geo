@@ -13,6 +13,6 @@ use DDD\Domain\Base\Repo\DB\Doctrine\DoctrineQueryBuilder;
  */
 class DBGeoRegions extends DBEntitySet
 {
-    public const BASE_REPO_CLASS = DBGeoRegion::class;
-    public const BASE_ENTITY_SET_CLASS = GeoRegions::class;
+    public const string BASE_REPO_CLASS = DBGeoRegion::class;
+    public const string BASE_ENTITY_SET_CLASS = GeoRegions::class;
 }

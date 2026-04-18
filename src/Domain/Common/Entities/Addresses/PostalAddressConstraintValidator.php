@@ -16,11 +16,9 @@ use Throwable;
  */
 class PostalAddressConstraintValidator extends ConstraintValidator
 {
-    /** @var string Error message for not Rooftop precision */
-    public const ERROR_NO_ROOFTOP_PRECISION = 'The address is not precise enough';
+    public const string ERROR_NO_ROOFTOP_PRECISION = 'The address is not precise enough';
 
-    /** @var string Error message for not found address */
-    public const ADDRESS_NOT_FOUND = 'The address could not be found';
+    public const string ADDRESS_NOT_FOUND = 'The address could not be found';
 
     /**
      * @throws NumberParseException

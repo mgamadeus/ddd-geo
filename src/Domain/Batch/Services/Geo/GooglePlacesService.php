@@ -141,7 +141,7 @@ class GooglePlacesService extends Service
                 $queryParams['languageCode'] = $languageCode;
             }
 
-            $response = $this->client->get("/v1/places/{$placeId}", [
+            $response = $this->client->get("/v1/places/$placeId", [
                 'query' => $queryParams,
                 'headers' => [
                     'X-Goog-FieldMask' => $fieldMask,
@@ -230,7 +230,7 @@ class GooglePlacesService extends Service
     protected function handleGuzzleException(GuzzleException $e, string $operation): ?stdClass
     {
         $exceptionDetails = new ExceptionDetails();
-        $errorMessage = "Google Places API Error in {$operation}";
+        $errorMessage = "Google Places API Error in $operation";
 
         if ($e->hasResponse()) {
             $errorBody = $e->getResponse()->getBody()->getContents();
@@ -270,7 +270,7 @@ class GooglePlacesService extends Service
                 'operation' => $operation,
                 'message' => $t->getMessage(),
             ]);
-            throw new InternalErrorException("Unexpected error in {$operation}", $exceptionDetails);
+            throw new InternalErrorException("Unexpected error in $operation", $exceptionDetails);
         }
         return null;
     }

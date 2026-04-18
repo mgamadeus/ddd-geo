@@ -27,7 +27,7 @@ class GeocodableGeoPoint extends GeoPoint
 
     public function uniqueKey(): string
     {
-        $key = $this->lat . ',' . $this->lng . (isset($this->languageCode) ? $this->languageCode : 'en');
+        $key = $this->lat . ',' . $this->lng . ($this->languageCode ?? 'en');
         return self::uniqueKeyStatic($key);
     }
 

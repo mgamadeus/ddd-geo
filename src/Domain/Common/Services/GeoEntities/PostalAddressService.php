@@ -19,7 +19,7 @@ use DDD\Infrastructure\Base\DateTime\DateTime;
 use DDD\Infrastructure\Cache\Cache as InfrastructureCache;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
 use DDD\Infrastructure\Exceptions\NotFoundException;
-use DDD\Infrastructure\Services\AppService;
+use DDD\Infrastructure\Services\DDDService;
 use DDD\Infrastructure\Services\IssuesLogService;
 use DDD\Infrastructure\Services\Service;
 use Psr\Log\LogLevel;
@@ -46,7 +46,7 @@ class PostalAddressService extends Service
      * does not match any of our DB records, so we have to normalize it
      * @var string[]
      */
-    protected const COUNTRY_NAMES = [
+    protected const array COUNTRY_NAMES = [
         'us' => 'USA',
         'gb' => 'United Kingdom',
         'united states' => 'USA',
@@ -58,7 +58,7 @@ class PostalAddressService extends Service
      * does not match any of our DB records, so we have to normalize it
      * @var string[]
      */
-    protected const COUNTRY_SHORTCODE = [
+    protected const array COUNTRY_SHORTCODE = [
         'uk' => 'gb',
     ];
 
@@ -479,7 +479,7 @@ class PostalAddressService extends Service
             )
         );
         /** @var IssuesLogService $logService */
-        $logService = AppService::instance()->getService(IssuesLogService::class);
+        $logService = DDDService::instance()->getService(IssuesLogService::class);
 
         $additionalContext = [];
         $additionalContext['additionalInformation'] = json_encode([
@@ -568,7 +568,7 @@ class PostalAddressService extends Service
             $dbCountry = $countriesService->getEntityRepoClassInstance();
             $queryBuilder = $dbCountry::createQueryBuilder();
             $alias = $dbCountry::getBaseModelAlias();
-            $queryBuilder->andWhere("{$alias}.name = :name")
+            $queryBuilder->andWhere("$alias.name = :name")
                 ->setParameter('name', $countryName);
             return $dbCountry->find($queryBuilder);
         }

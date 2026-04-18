@@ -8,7 +8,7 @@ use DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType;
 use DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoTypes;
 use DDD\Domain\Common\Repo\DB\GeoEntities\GeoTypes\DBGeoType;
 use DDD\Domain\Common\Repo\DB\GeoEntities\GeoTypes\DBGeoTypes;
-use DDD\Infrastructure\Services\AppService;
+use DDD\Infrastructure\Services\DDDService;
 use DDD\Domain\Base\Entities\Entity;
 use DDD\Domain\Base\Services\EntitiesService;
 use ReflectionClass;
@@ -26,7 +26,7 @@ use ReflectionClass;
  */
 class GeoTypesService extends EntitiesService
 {
-    public const DEFAULT_ENTITY_CLASS = GeoType::class;
+    public const string DEFAULT_ENTITY_CLASS = GeoType::class;
 
     /**
      * Imports all GeoTypes from the TYPE_* constants defined on the GeoType class.
@@ -44,7 +44,7 @@ class GeoTypesService extends EntitiesService
         $createdCount = 0;
         $updatedCount = 0;
 
-        AppService::instance()->deactivateEntityRightsRestrictions();
+        DDDService::instance()->deactivateEntityRightsRestrictions();
 
         foreach ($constants as $constantName => $constantValue) {
             // Only process TYPE_* constants (skip non-string values)
@@ -66,7 +66,7 @@ class GeoTypesService extends EntitiesService
             }
         }
 
-        AppService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
+        DDDService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
 
         return [
             'created' => $createdCount,
@@ -96,9 +96,9 @@ class GeoTypesService extends EntitiesService
         $geoType = new GeoType();
         $geoType->name = $normalizedName;
 
-        AppService::instance()->deactivateEntityRightsRestrictions();
+        DDDService::instance()->deactivateEntityRightsRestrictions();
         $geoType->update();
-        AppService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
+        DDDService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
 
         return $geoType;
     }
@@ -116,7 +116,7 @@ class GeoTypesService extends EntitiesService
         $repoClass = $this->getEntityRepoClassInstance();
         $queryBuilder = $repoClass::createQueryBuilder();
         $alias = $repoClass::getBaseModelAlias();
-        $queryBuilder->andWhere("{$alias}.name = :name")
+        $queryBuilder->andWhere("$alias.name = :name")
             ->setParameter('name', $normalizedName);
         return $repoClass->find($queryBuilder);
     }
