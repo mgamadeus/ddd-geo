@@ -462,18 +462,16 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     }
 
     /**
-     * Returns language if set, otherwise returns language from country, if country is set
-     * @return string|void|null
+     * The language set on this object, or null.
+     *
+     * @return string|null
      */
     public function getLanguageCode()
     {
         if ($this->languageCode ?? false) {
             return $this->languageCode;
         }
-        if (isset($this->country->languageCode)) {
-            $this->languageCode = $this->country->getDefaultLanguage()?->languageCode;
-            return $this->languageCode;
-        }
+        return null;
     }
 
     /**

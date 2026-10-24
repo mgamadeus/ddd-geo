@@ -51,18 +51,16 @@ class ArgusPostalAddresses extends PostalAddresses
     }
 
     /**
-     * Returns language if set, otherwise returns language from country, if country is set
-     * @return string|void|null
+     * The language set on this object, or null.
+     *
+     * @return string|null
      */
     public function getLanguageCode()
     {
         if ($this->languageCode ?? false) {
             return $this->languageCode;
         }
-        if ($this->country->languageCode ?? false) {
-            $this->languageCode = $this->country->getDefaultLanguage()?->languageCode;
-            return $this->languageCode;
-        }
+        return null;
     }
 
     /**
