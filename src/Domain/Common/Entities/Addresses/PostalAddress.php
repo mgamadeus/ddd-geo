@@ -231,7 +231,7 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     public string $geoCodeRawResults;
 
     /** @var string Precision of PostalAddress geocodation */
-    #[Choice([
+    #[Choice(choices: [
         self::PRECISIOIN_APPROXIMATE,
         self::PRECISIOIN_ROOFTOP,
         self::PRECISIOIN_GEOMETRIC_CENTER,

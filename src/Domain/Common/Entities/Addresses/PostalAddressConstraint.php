@@ -20,6 +20,6 @@ class PostalAddressConstraint extends Constraint
 
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct([], $groups, $payload);
+        parent::__construct(null, $groups, $payload);
     }
 }
