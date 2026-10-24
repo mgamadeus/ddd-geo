@@ -60,7 +60,7 @@ class ArgusPostalAddresses extends PostalAddresses
             return $this->languageCode;
         }
         if ($this->country->languageCode ?? false) {
-            $this->languageCode = $this->country->getDefaultLanguage()->languageCode;
+            $this->languageCode = $this->country->getDefaultLanguage()?->languageCode;
             return $this->languageCode;
         }
     }

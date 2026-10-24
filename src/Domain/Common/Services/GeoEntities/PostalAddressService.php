@@ -142,7 +142,8 @@ class PostalAddressService extends Service
                 $address->countryId = $country->id;
                 $address->addChildren($country);
                 if (!$langaugeCode) {
-                    $langaugeCode = $country->getDefaultLanguage()->languageCode;
+                    // ?Language: a country without a default Locale leaves the language unset, as without a country
+                    $langaugeCode = $country->getDefaultLanguage()?->languageCode;
                 }
             }
         }

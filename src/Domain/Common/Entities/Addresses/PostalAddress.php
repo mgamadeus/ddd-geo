@@ -471,7 +471,7 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
             return $this->languageCode;
         }
         if (isset($this->country->languageCode)) {
-            $this->languageCode = $this->country->getDefaultLanguage()->languageCode;
+            $this->languageCode = $this->country->getDefaultLanguage()?->languageCode;
             return $this->languageCode;
         }
     }

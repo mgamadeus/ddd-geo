@@ -431,7 +431,15 @@ class GeoRegionsService extends EntitiesService
             }
             return null;
         }
-        $geoRegion->setCurrentLanguageCode($geoRegion->country->getDefaultLanguage()->languageCode);
+        // getDefaultLanguage() is ?Language: null when the country has no default Locale (an unseeded Locales table, or a
+        // country the seed carries no primary language for). It is only a geocoding language hint, so fall back to the
+        // region's own language, then the request language, instead of aborting the whole address mapping. `?->` also
+        // covers a GeoRegion that carries countryId but no hydrated country, which the guard above admits.
+        $geoRegion->setCurrentLanguageCode(
+            $geoRegion->country?->getDefaultLanguage()?->languageCode
+                ?? $geoRegion->getCurrentLanguageCode()
+                ?? Translatable::getCurrentLanguageCode()
+        );
         $argusGeoRegion = new ArgusGeoRegion();
         $argusGeoRegion = $argusGeoRegion->fromEntity($geoRegion);
 
