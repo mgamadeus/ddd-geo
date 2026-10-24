@@ -3,7 +3,6 @@
 namespace DDD\Domain\Common\Entities\Addresses;
 
 
-use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
 use DDD\Domain\Base\Entities\ValueObject;
 use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;

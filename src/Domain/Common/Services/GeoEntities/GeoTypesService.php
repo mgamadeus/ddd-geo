@@ -77,33 +77,6 @@ class GeoTypesService extends EntitiesService
     }
 
     /**
-     * Finds a GeoType by its name, or creates it if it doesn't exist.
-     * Used during geocoding to ensure all Google address component types are persisted.
-     * Input is automatically normalized to UPPERCASE (Google returns lowercase).
-     *
-     * @param string $name The Google Maps address component type name (e.g., "political", "locality")
-     * @return GeoType The found or newly created GeoType
-     */
-    public function findOrCreateByName(string $name): GeoType
-    {
-        $normalizedName = GeoType::normalizeFromGoogle($name);
-
-        $geoType = $this->findByName($normalizedName);
-        if ($geoType) {
-            return $geoType;
-        }
-
-        $geoType = new GeoType();
-        $geoType->name = $normalizedName;
-
-        DDDService::instance()->deactivateEntityRightsRestrictions();
-        $geoType->update();
-        DDDService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
-
-        return $geoType;
-    }
-
-    /**
      * Finds a GeoType by its unique name.
      * Input is automatically normalized to UPPERCASE for consistent lookup.
      *

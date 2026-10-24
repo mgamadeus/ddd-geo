@@ -442,7 +442,7 @@ class PostalAddressService extends Service
             }
 
             return $forceResetCache;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             // If Redis fails, don't break the application - just skip tracking
             return false;
         }

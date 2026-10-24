@@ -47,7 +47,7 @@ class PostalAddressConstraintValidator extends ConstraintValidator
                     PostalAddress::VALID_ADDRESS_PRECISION_LEVELS
                 )) {
                 // if address cannot be geocoded but customer selected geopoint is provided, we consider the address valid
-                if ($customGeoPoint = $address->customerSelectedGeoPoint ?? null) {
+                if ($address->customerSelectedGeoPoint ?? null) {
                     return;
                 }
                 if ($address->precision == PostalAddress::PRECISIOIN_NOT_FOUND) {

@@ -154,7 +154,7 @@ class ArgusGeoRegion extends GeoRegion
         }
         $geoTypesService = GeoType::getService();
 
-        foreach ($callResponseData->data as $languageCode => $results) {
+        foreach ($callResponseData->data as $results) {
             if (empty($results) || !isset($results[0])) {
                 break;
             }

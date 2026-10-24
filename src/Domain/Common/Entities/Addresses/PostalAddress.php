@@ -722,8 +722,6 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
         if (preg_match($pattern, $formattedAddress, $matches)) {
             // Check which part of the pattern matched
             $street = !empty($matches['street']) ? $matches['street'] : $matches['street2'];
-            //$number = !empty($matches['number']) ? $matches['number'] : $matches['number2'];
-
         }
         return $street ?? null;
     }
@@ -946,16 +944,6 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     }
 
     /**
-     * Returns the administrative_area_level_1 GeoRegion (equivalent to the legacy "State")
-     *
-     * @return GeoRegion|null
-     */
-    public function getAdministrativeArea(): ?GeoRegion
-    {
-        return $this->getGeoRegionByType(GeoType::TYPE_ADMINISTRATIVE_AREA_LEVEL_1);
-    }
-
-    /**
      * Returns the GeoRegion matching the given type by walking up the hierarchy from the leaf geoRegion.
      * Convenience shortcut for `$this->geoRegion->findAncestorByType($type)`.
      *
@@ -978,27 +966,6 @@ class PostalAddress extends ValueObject implements IsEmptyInterface
     public function getLocality(): ?GeoRegion
     {
         return $this->getGeoRegionByType(GeoType::TYPE_LOCALITY);
-    }
-
-    /**
-     * Returns the settlement GeoRegion by walking the settlement fallback chain on the GeoRegion hierarchy.
-     * This is the semantic "city" — the most meaningful city-like entity for this address,
-     * using the same deterministic chain as the raw component extraction in applyGeoCodeRawResults().
-     *
-     * @return GeoRegion|null The first matching GeoRegion ancestor, or null if none found
-     */
-    public function getSettlement(): ?GeoRegion
-    {
-        if (!isset($this->geoRegion)) {
-            return null;
-        }
-        foreach (self::$settlementFallbackChain as $typeName) {
-            $region = $this->geoRegion->findAncestorByType($typeName);
-            if ($region) {
-                return $region;
-            }
-        }
-        return null;
     }
 
     public function mapFromRepository(mixed $repoObject): void

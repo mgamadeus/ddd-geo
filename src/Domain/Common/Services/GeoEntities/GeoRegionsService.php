@@ -6,7 +6,6 @@ namespace DDD\Domain\Common\Services\GeoEntities;
 
 use DDD\Domain\Common\Entities\GeoEntities\GeoRegions\GeoRegion;
 use DDD\Domain\Common\Entities\GeoEntities\GeoRegions\GeoRegions;
-use DDD\Domain\Common\Entities\GeoEntities\GeoRegionTypes\GeoRegionType;
 use DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoType;
 use DDD\Domain\Common\Entities\GeoEntities\GeoTypes\GeoTypes;
 use DDD\Domain\Common\Entities\PoliticalEntities\Countries\Country;
@@ -210,9 +209,6 @@ class GeoRegionsService extends EntitiesService
 
             Translatable::restoreTranslationSettingsSnapshot();
 
-            // ── Create N:N type assignments ──
-            //$this->assignTypesToGeoRegion($geoRegion, $types);
-
             DDDService::instance()->restoreEntityRightsRestrictionsStateSnapshot();
 
             $this->expandGeoRegionWithParentsAndTypes($geoRegion);
@@ -292,33 +288,6 @@ class GeoRegionsService extends EntitiesService
             }
             // Walk up to parent — accessing parentGeoRegion triggers lazy load
             $current = $current->parentGeoRegion ?? null;
-        }
-    }
-
-    /**
-     * Creates GeoRegionType junction entries for each type name, linking them to the given GeoRegion.
-     * Uses GeoTypesService to find-or-create the GeoType lookup entries.
-     *
-     * @param GeoRegion $geoRegion The GeoRegion to assign types to
-     * @param string[] $typeNames Array of Google Maps type names (e.g., ['political', 'sublocality'])
-     * @return void
-     */
-    protected function assignTypesToGeoRegion(GeoRegion $geoRegion, array $typeNames): void
-    {
-        if (empty($typeNames)) {
-            return;
-        }
-
-        /** @var GeoTypesService $geoTypesService */
-        $geoTypesService = GeoTypes::getService();
-
-        foreach ($typeNames as $typeName) {
-            $geoType = $geoTypesService->findOrCreateByName($typeName);
-
-            $geoRegionType = new GeoRegionType();
-            $geoRegionType->geoRegionId = $geoRegion->id;
-            $geoRegionType->geoTypeId = $geoType->id;
-            $geoRegionType->update();
         }
     }
 

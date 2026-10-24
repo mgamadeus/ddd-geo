@@ -119,17 +119,6 @@ class GeoType extends Entity
     }
 
     /**
-     * Normalizes an array of Google Maps type names to UPPERCASE.
-     *
-     * @param string[] $googleTypeNames Array of raw type names from Google Geocoding API
-     * @return string[] Array of UPPERCASE canonical type names
-     */
-    public static function normalizeArrayFromGoogle(array $googleTypeNames): array
-    {
-        return array_map(static fn(string $name) => strtoupper($name), $googleTypeNames);
-    }
-
-    /**
      * Returns a unique key based on the type name
      *
      * @return string
