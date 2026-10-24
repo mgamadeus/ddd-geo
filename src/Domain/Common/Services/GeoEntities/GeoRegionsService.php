@@ -13,6 +13,7 @@ use DDD\Domain\Common\Entities\PoliticalEntities\Countries\Country;
 use DDD\Domain\Common\Repo\Argus\GeoEntities\GeoRegions\ArgusGeoRegion;
 use DDD\Domain\Common\Repo\DB\GeoEntities\GeoRegions\DBGeoRegion;
 use DDD\Domain\Common\Repo\DB\GeoEntities\GeoRegions\DBGeoRegions;
+use DDD\Domain\Common\Services\PoliticalEntities\NameFulltextFilterTrait;
 use DDD\Domain\Base\Entities\Entity;
 use DDD\Infrastructure\Services\DDDService;
 use DDD\Domain\Base\Entities\Translatable\Translatable;
@@ -34,6 +35,8 @@ use ReflectionException;
  */
 class GeoRegionsService extends EntitiesService
 {
+    use NameFulltextFilterTrait;
+
     public const string DEFAULT_ENTITY_CLASS = GeoRegion::class;
 
     /**
@@ -361,10 +364,8 @@ class GeoRegionsService extends EntitiesService
         $repoClass = $this->getEntityRepoClassInstance();
         $queryBuilder = $repoClass::createQueryBuilder(true);
         $alias = $repoClass::getBaseModelAlias();
-        $queryBuilder->andWhere(
-            "MATCH ($alias.name) AGAINST (:searchName IN BOOLEAN MODE) > 0
-            AND $alias.countryId = :countryId"
-        )->setParameter('searchName', $name)->setParameter('countryId', $country->id);
+        $this->applyNameFulltextFilterToQueryBuilder($queryBuilder, $name, GeoRegion::class);
+        $queryBuilder->andWhere("$alias.countryId = :countryId")->setParameter('countryId', $country->id);
 
         if ($parentGeoRegion && isset($parentGeoRegion->id)) {
             $queryBuilder->andWhere("$alias.parentGeoRegionId = :parentId")

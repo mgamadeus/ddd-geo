@@ -16,6 +16,7 @@ use DDD\Domain\Base\Entities\ChangeHistory\ChangeHistoryTrait;
 use DDD\Domain\Base\Entities\Entity;
 use DDD\Domain\Base\Entities\LazyLoad\LazyLoad;
 use DDD\Domain\Base\Entities\LazyLoad\LazyLoadRepo;
+use DDD\Domain\Base\Entities\QueryOptions\QueryOptionsTrait;
 use DDD\Domain\Base\Entities\Translatable\Translatable;
 use DDD\Domain\Base\Entities\Translatable\TranslatableTrait;
 use DDD\Domain\Base\Repo\DB\Database\DatabaseColumn;
@@ -40,11 +41,10 @@ use DDD\Infrastructure\Traits\Serializer\Attributes\HideProperty;
 #[NoRecursiveUpdate]
 class GeoRegion extends Entity
 {
-    use ChangeHistoryTrait, TranslatableTrait;
+    use ChangeHistoryTrait, TranslatableTrait, QueryOptionsTrait;
 
     /** @var string|null The region's full name (multilingual, e.g., "New York", "Bayern", "Brooklyn") */
-    #[Translatable]
-    #[DatabaseIndex(indexType: DatabaseIndex::TYPE_FULLTEXT)]
+    #[Translatable(fullTextIndex: true)]
     public ?string $name;
 
     /** @var string|null URL-safe slug (e.g., "us-ny", "de-by", "us-ny-brooklyn") */
