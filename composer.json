@@ -3,7 +3,7 @@
     "description": "Addresses, geocoding, GeoRegions, GeoTypes for mgamadeus/ddd",
     "minimum-stability": "stable",
     "license": "MIT",
-    "version": "1.0.15",
+    "version": "1.0.16",
     "authors": [
         {
             "name": "Marius-Eugen Gerdan",
@@ -12,7 +12,7 @@
     ],
     "require": {
         "mgamadeus/ddd-common-political": "^1.0.15",
-        "mgamadeus/ddd": "^2.70.7"
+        "mgamadeus/ddd": "^2.70.7 || ^3.0"
     },
     "autoload": {
         "psr-4": {
